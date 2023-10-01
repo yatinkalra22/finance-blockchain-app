@@ -8,5 +8,8 @@
     "ethereum-waffle": "^4.0.10",
     "ethers": "^5.7.2",
     "hardhat": "^2.6.4"
+  },
+  "dependencies": {
+    "react-spring": "^9.7.3"
   }
 }

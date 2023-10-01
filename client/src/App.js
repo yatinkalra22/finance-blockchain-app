@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import LendingPoolABI from "./LendingPoolABI.json";
+import { useSpring, animated } from "react-spring";
 
 function App() {
   const [amount, setAmount] = useState("");
   const [loanAmount, setLoanAmount] = useState("0");
   const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+
+  const fadeIn = useSpring({
+    opacity: 1,
+    from: { opacity: 0 },
+    delay: 500,
+  });
 
   async function fetchLoanAmount() {
     try {
@@ -101,21 +108,61 @@ function App() {
   }
 
   return (
-    <div>
+    <div style={styles.container}>
       <input
+        style={styles.input}
         type="text"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder="Amount in ETH"
       />
-      <button onClick={handleDeposit}>Deposit</button>
-      <button onClick={handleBorrow}>Borrow</button>
-      <button onClick={handleRepay}>Repay</button>
-      <div>
-        <strong>Your Current Loan Amount:</strong> {loanAmount} ETH
+      <div style={styles.buttonContainer}>
+        <button style={styles.button} onClick={handleDeposit}>
+          Deposit
+        </button>
+        <button style={styles.button} onClick={handleBorrow}>
+          Borrow
+        </button>
+        <button style={styles.button} onClick={handleRepay}>
+          Repay
+        </button>
       </div>
+      <animated.div style={{ ...fadeIn, ...styles.loanInfo }}>
+        <strong>Your Current Loan Amount:</strong> {loanAmount} ETH
+      </animated.div>
     </div>
   );
 }
+
+const styles = {
+  container: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "20px",
+  },
+  input: {
+    padding: "10px",
+    fontSize: "16px",
+    margin: "20px 0",
+  },
+  buttonContainer: {
+    display: "flex",
+    gap: "10px",
+  },
+  button: {
+    padding: "10px 15px",
+    fontSize: "16px",
+    cursor: "pointer",
+    transition: "transform 0.2s ease-in-out",
+    "&:hover": {
+      transform: "scale(1.05)",
+    },
+  },
+  loanInfo: {
+    marginTop: "20px",
+  },
+};
 
 export default App;
