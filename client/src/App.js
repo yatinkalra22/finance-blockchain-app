@@ -1,28 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import LendingPoolABI from "./LendingPoolABI.json";
 
 function App() {
   const [amount, setAmount] = useState("");
+  const [loanAmount, setLoanAmount] = useState("0");
   const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
-  // async function handleDeposit() {
-  //   const provider = new ethers.providers.Web3Provider(window.ethereum);
-  //   const signer = provider.getSigner();
-  //   const contract = new ethers.Contract(
-  //     contractAddress,
-  //     LendingPoolABI,
-  //     signer
-  //   );
-  //   console.log("contract: ", contract);
-  //   console.log("amount: ", amount);
-  //   console.log(
-  //     "ethers.utils.parseEther(amount): ",
-  //     ethers.utils.parseEther(amount)
-  //   );
+  async function fetchLoanAmount() {
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(
+        contractAddress,
+        LendingPoolABI,
+        signer
+      );
 
-  //   await contract.deposit({ value: ethers.utils.parseEther(amount) });
-  // }
+      const signerAddress = await signer.getAddress();
+      const userLoan = await contract.loans(signerAddress); // Assuming your contract has a public loans mapping
+      setLoanAmount(ethers.utils.formatEther(userLoan));
+    } catch (error) {
+      console.error("Failed to fetch loan amount:", error);
+    }
+  }
+
+  // Automatically fetch the loan amount when the component mounts
+  useEffect(() => {
+    fetchLoanAmount();
+  }, []);
 
   async function handleDeposit() {
     try {
@@ -49,42 +55,49 @@ function App() {
         LendingPoolABI,
         signer
       );
-
-      console.log("contract: ", contract);
-      console.log("amount: ", amount);
-      console.log(
-        "ethers.utils.parseEther(amount): ",
-        ethers.utils.parseEther(amount)
-      );
-
       await contract.deposit({ value: ethers.utils.parseEther(amount) });
     } catch (error) {
       console.error("There was an error!", error);
+      alert(error.message);
     }
   }
 
   async function handleBorrow() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(
-      contractAddress,
-      LendingPoolABI,
-      signer
-    );
+    try {
+      // 1. Request MetaMask connection
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(
+        contractAddress,
+        LendingPoolABI,
+        signer
+      );
 
-    await contract.borrow(ethers.utils.parseEther(amount));
+      await contract.borrow(ethers.utils.parseEther(amount));
+    } catch (error) {
+      console.error("Failed to borrow:", error);
+      alert(error.message);
+    }
   }
 
   async function handleRepay() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const contract = new ethers.Contract(
-      contractAddress,
-      LendingPoolABI,
-      signer
-    );
+    try {
+      // 1. Request MetaMask connection
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(
+        contractAddress,
+        LendingPoolABI,
+        signer
+      );
 
-    await contract.repay({ value: ethers.utils.parseEther(amount) });
+      await contract.repay({ value: ethers.utils.parseEther(amount) });
+    } catch (error) {
+      console.error("Failed to repay:", error);
+      alert(error.message);
+    }
   }
 
   return (
@@ -98,6 +111,9 @@ function App() {
       <button onClick={handleDeposit}>Deposit</button>
       <button onClick={handleBorrow}>Borrow</button>
       <button onClick={handleRepay}>Repay</button>
+      <div>
+        <strong>Your Current Loan Amount:</strong> {loanAmount} ETH
+      </div>
     </div>
   );
 }

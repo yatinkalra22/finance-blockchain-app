@@ -44,6 +44,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getTotalFunds",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -81,5 +94,9 @@
     "outputs": [],
     "stateMutability": "payable",
     "type": "function"
+  },
+  {
+    "stateMutability": "payable",
+    "type": "receive"
   }
 ]
