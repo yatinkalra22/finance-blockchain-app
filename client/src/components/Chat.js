@@ -111,9 +111,9 @@ const ChatUI = (props) => {
   const renderMessages = () => {
     if (!messages[0]) {
       return (
-        <Box sx={{ flexGrow: 1, overflow: "auto", p: 2, textAlign: "center" }}>
-          No Messages
-        </Box>
+        <Box
+          sx={{ flexGrow: 1, overflow: "auto", p: 2, textAlign: "center" }}
+        />
       );
     }
     return (
