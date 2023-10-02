@@ -25,8 +25,11 @@ function App() {
       );
 
       const signerAddress = await signer.getAddress();
-      const userLoan = await contract.loans(signerAddress); // Assuming your contract has a public loans mapping
-      setLoanAmount(ethers.utils.formatEther(userLoan));
+      const userLoanWei = await contract.loans(signerAddress); // Assuming your contract has a public loans mapping
+      const interestWei = await contract.calculateInterest(userLoanWei);
+      const totalOwedWei = userLoanWei.add(interestWei);
+
+      setLoanAmount(ethers.utils.formatEther(totalOwedWei));
     } catch (error) {
       console.error("Failed to fetch loan amount:", error);
     }
@@ -71,8 +74,9 @@ function App() {
 
   async function handleBorrow() {
     try {
-      // 1. Request MetaMask connection
-      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
       const contract = new ethers.Contract(
@@ -80,6 +84,17 @@ function App() {
         LendingPoolABI,
         signer
       );
+
+      const interest = await contract.calculateInterest(
+        ethers.utils.parseEther(amount)
+      );
+      const totalOwedWei = interest.add(ethers.utils.parseEther(amount));
+      const totalOwed = ethers.utils.formatEther(totalOwedWei);
+
+      const confirmation = window.confirm(
+        `You will borrow ${amount} ETH and will owe ${totalOwed} ETH including 6% interest. Do you agree?`
+      );
+      if (!confirmation) return;
 
       await contract.borrow(ethers.utils.parseEther(amount));
     } catch (error) {
@@ -90,7 +105,6 @@ function App() {
 
   async function handleRepay() {
     try {
-      // 1. Request MetaMask connection
       await window.ethereum.request({ method: "eth_requestAccounts" });
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
@@ -100,7 +114,11 @@ function App() {
         signer
       );
 
-      await contract.repay({ value: ethers.utils.parseEther(amount) });
+      const principal = await contract.loans(signer.getAddress());
+      const interest = await contract.calculateInterest(principal);
+      const totalOwed = principal.add(interest);
+
+      await contract.repay({ value: totalOwed });
     } catch (error) {
       console.error("Failed to repay:", error);
       alert(error.message);

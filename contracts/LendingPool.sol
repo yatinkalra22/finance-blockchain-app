@@ -6,45 +6,45 @@ contract LendingPool {
     mapping(address => uint256) public deposits;
     mapping(address => uint256) public loans;
 
+    uint256 constant INTEREST_RATE = 6;
+
     constructor() {
         owner = msg.sender;
     }
 
-    // Allows the owner to deposit funds into the contract
     function deposit() external payable {
         deposits[msg.sender] += msg.value;
     }
 
-    // Returns the total funds available in the pool
     function getTotalFunds() public view returns (uint256) {
         return address(this).balance;
     }
 
-    // Allows a user to borrow funds from the pool
-    function borrow(uint256 amount) external {
-        // Check if the pool has enough funds
-        require(getTotalFunds() >= amount, "Insufficient funds in pool");
+    function calculateInterest(uint256 amount) public pure returns (uint256) {
+        return (amount * INTEREST_RATE) / 100;
+    }
 
-        // Check for potential overflow in the loans mapping
+    function borrow(uint256 amount) external {
+        require(getTotalFunds() >= amount, "Insufficient funds in pool");
         require(
             loans[msg.sender] + amount > loans[msg.sender],
             "Potential overflow detected"
         );
 
-        // Transfer the funds and update the state
         loans[msg.sender] += amount;
         payable(msg.sender).transfer(amount);
     }
 
-    // Allows a user to repay their loan
     function repay() external payable {
-        // Check if the user is repaying the correct amount
-        require(msg.value == loans[msg.sender], "Repay the exact loan amount");
+        uint256 owedAmount = loans[msg.sender] +
+            calculateInterest(loans[msg.sender]);
+        require(
+            msg.value == owedAmount,
+            "Repay the exact loan amount including interest"
+        );
 
-        // Reset the user's loan amount
         loans[msg.sender] = 0;
     }
 
-    // This is a fallback function to accept any incoming ETH
     receive() external payable {}
 }
