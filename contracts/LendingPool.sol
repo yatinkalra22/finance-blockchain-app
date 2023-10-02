@@ -5,11 +5,22 @@ contract LendingPool {
     address public owner;
     mapping(address => uint256) public deposits;
     mapping(address => uint256) public loans;
-
     uint256 constant INTEREST_RATE = 6;
+
+    // chat
+    mapping(uint256 => ChatMessage) public messages;
+    uint256 public messageCount;
+    struct ChatMessage {
+        address sender;
+        string text;
+        uint256 timestamp;
+    }
+
+    event MessageStored(address indexed sender, uint256 indexed messageId);
 
     constructor() {
         owner = msg.sender;
+        messageCount = 0;
     }
 
     function deposit() external payable {
@@ -44,6 +55,47 @@ contract LendingPool {
         );
 
         loans[msg.sender] = 0;
+    }
+
+    // chat
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can perform this action");
+        _;
+    }
+
+    function storeMessage(string memory text) public {
+        require(bytes(text).length > 0, "Message text cannot be empty");
+
+        uint256 messageId = messageCount++;
+        messages[messageId] = ChatMessage({
+            sender: msg.sender,
+            text: text,
+            timestamp: block.timestamp
+        });
+
+        emit MessageStored(msg.sender, messageId);
+    }
+
+    function getMessage(
+        uint256 messageId
+    ) public view returns (address, string memory, uint256) {
+        require(messageId < messageCount, "Invalid message ID");
+
+        ChatMessage storage message = messages[messageId];
+        return (message.sender, message.text, message.timestamp);
+    }
+
+    function getAllMessages() public view returns (ChatMessage[] memory) {
+        ChatMessage[] memory allMessages = new ChatMessage[](messageCount);
+        for (uint256 i = 0; i < messageCount; i++) {
+            ChatMessage storage message = messages[i];
+            allMessages[i] = ChatMessage({
+                sender: message.sender,
+                text: message.text,
+                timestamp: message.timestamp
+            });
+        }
+        return allMessages;
     }
 
     receive() external payable {}

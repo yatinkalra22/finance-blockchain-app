@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import LendingPoolABI from "./LendingPoolABI.json";
 import { useSpring, animated } from "react-spring";
+import { getMachineId } from "./utils/deviceInfo";
+import MobileScreen from "./components/MobileScreen";
 
 function App() {
   const [amount, setAmount] = useState("");
@@ -38,6 +40,7 @@ function App() {
   // Automatically fetch the loan amount when the component mounts
   useEffect(() => {
     fetchLoanAmount();
+    getMachineId();
   }, []);
 
   async function handleDeposit() {
@@ -126,33 +129,42 @@ function App() {
   }
 
   return (
-    <div style={styles.container}>
-      <input
-        style={styles.input}
-        type="text"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        placeholder="Amount in ETH"
-      />
-      <div style={styles.buttonContainer}>
-        <button style={styles.button} onClick={handleDeposit}>
-          Deposit
-        </button>
-        <button style={styles.button} onClick={handleBorrow}>
-          Borrow
-        </button>
-        <button style={styles.button} onClick={handleRepay}>
-          Repay
-        </button>
+    <div style={styles.mainContainer}>
+      <MobileScreen />
+      <div style={styles.container}>
+        <input
+          style={styles.input}
+          type="text"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="Amount in ETH"
+        />
+        <div style={styles.buttonContainer}>
+          <button style={styles.button} onClick={handleDeposit}>
+            Deposit
+          </button>
+          <button style={styles.button} onClick={handleBorrow}>
+            Borrow
+          </button>
+          <button style={styles.button} onClick={handleRepay}>
+            Repay
+          </button>
+        </div>
+        <animated.div style={{ ...fadeIn, ...styles.loanInfo }}>
+          <strong>Your Current Loan Amount:</strong> {loanAmount} ETH
+        </animated.div>
       </div>
-      <animated.div style={{ ...fadeIn, ...styles.loanInfo }}>
-        <strong>Your Current Loan Amount:</strong> {loanAmount} ETH
-      </animated.div>
     </div>
   );
 }
 
 const styles = {
+  mainContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    flexDirection: "column",
+    height: "500px",
+  },
   container: {
     display: "flex",
     flexDirection: "column",
