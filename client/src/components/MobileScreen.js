@@ -52,7 +52,7 @@ export default function MobileScreen() {
         className="mobile"
         sx={{
           position: "absolute",
-          height: "100%",
+          height: "88%",
         }}
       >
         <Box

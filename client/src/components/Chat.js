@@ -143,6 +143,7 @@ const ChatUI = (props) => {
           <TextField
             fullWidth
             size="small"
+            style={{ backgroundColor: "white" }}
             sx={{ borderRadius: "0" }}
             placeholder="Type a message"
             value={input}

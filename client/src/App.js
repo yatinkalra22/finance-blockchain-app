@@ -4,6 +4,8 @@ import LendingPoolABI from "./LendingPoolABI.json";
 import { useSpring, animated } from "react-spring";
 import { getMachineId } from "./utils/deviceInfo";
 import MobileScreen from "./components/MobileScreen";
+import "./App.css";
+import BgImage from "./assets/blockchain-bg.jpeg";
 
 function App() {
   const [amount, setAmount] = useState("");
@@ -27,7 +29,7 @@ function App() {
       );
 
       const signerAddress = await signer.getAddress();
-      const userLoanWei = await contract.loans(signerAddress); // Assuming your contract has a public loans mapping
+      const userLoanWei = await contract.loans(signerAddress);
       const interestWei = await contract.calculateInterest(userLoanWei);
       const totalOwedWei = userLoanWei.add(interestWei);
 
@@ -129,41 +131,66 @@ function App() {
   }
 
   return (
-    <div style={styles.mainContainer}>
-      <MobileScreen />
-      <div style={styles.container}>
-        <input
-          style={styles.input}
-          type="text"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Amount in ETH"
-        />
-        <div style={styles.buttonContainer}>
-          <button style={styles.button} onClick={handleDeposit}>
-            Deposit
-          </button>
-          <button style={styles.button} onClick={handleBorrow}>
-            Borrow
-          </button>
-          <button style={styles.button} onClick={handleRepay}>
-            Repay
-          </button>
+    <>
+      <header className="app-header">BlockLendChat</header>
+      <div style={styles.parentContainer}>
+        <div style={styles.mainContainer}>
+          <MobileScreen />
+          <div style={styles.container}>
+            <input
+              style={styles.input}
+              type="text"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="Amount in ETH"
+            />
+            <div style={styles.buttonContainer}>
+              <button style={styles.button} onClick={handleDeposit}>
+                Deposit
+              </button>
+              <button style={styles.button} onClick={handleBorrow}>
+                Borrow
+              </button>
+              <button style={styles.button} onClick={handleRepay}>
+                Repay
+              </button>
+            </div>
+            <animated.div style={{ ...fadeIn, ...styles.loanInfo }}>
+              <strong>Your Current Loan Amount:</strong> {loanAmount} ETH
+            </animated.div>
+          </div>
         </div>
-        <animated.div style={{ ...fadeIn, ...styles.loanInfo }}>
-          <strong>Your Current Loan Amount:</strong> {loanAmount} ETH
-        </animated.div>
       </div>
-    </div>
+      <img
+        src={BgImage}
+        alt="text"
+        height="100%"
+        style={{
+          position: "absolute",
+          backgroundSize: "cover",
+          backgroundRepeat: "repeat",
+          height: "100%",
+          width: "100%",
+          top: "0",
+          zIndex: "-1",
+        }}
+      />
+    </>
   );
 }
 
 const styles = {
+  parentContainer: {
+    marginTop: "20px",
+    display: "flex",
+    justifyContent: "center",
+    alignContent: "center",
+  },
   mainContainer: {
     display: "flex",
     justifyContent: "space-between",
-    flexDirection: "column",
     height: "500px",
+    width: "900px",
   },
   container: {
     display: "flex",
