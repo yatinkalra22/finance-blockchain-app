@@ -1,6 +1,4 @@
-# Sample Hardhat Project
-
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+Our project aims to use insights and knowledge from LLM in blockchain to create secure and more reliable decentralized financial (DeFi) systems. We believe that combining legal expertise with blockchain technology is the key to solving current challenges in the DeFi space.
 
 Try running some of the following tasks:
 
